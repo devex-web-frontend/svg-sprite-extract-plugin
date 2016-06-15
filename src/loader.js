@@ -35,6 +35,10 @@ function processSvg(content, id) {
 }
 
 module.exports = function(content) {
+	if (this.cacheable) {
+		this.cacheable();
+	}
+
 	let result;
 	let spriteId = path.basename(this.resourcePath, '.svg');
 	let query = loaderUtils.parseQuery(this.query);

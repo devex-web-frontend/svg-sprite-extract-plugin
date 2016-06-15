@@ -1,0 +1,22 @@
+{
+  "name": "svg-sprite-extract-plugin",
+  "version": "0.0.1",
+  "description": "Webpack plugin for extracting SVG and creating sprites",
+  "main": "./index.js",
+  "authors": [
+    "vepanimas <vpanimaskin@devexperts.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/devex-web-frontend/svg-sprite-extract-plugin",
+  "moduleType": [
+    "es6"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

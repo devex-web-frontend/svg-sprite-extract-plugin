@@ -29,7 +29,8 @@ class SVGSpriteExtractPlugin {
 	}
 
 	loader() {
-		return require.resolve('./loader') + '?' + JSON.stringify(this.options);
+		let {svgCacheNamespace, svgCacheFuncName} = this.options;
+		return require.resolve('./loader') + '?' + JSON.stringify({svgCacheNamespace, svgCacheFuncName});
 	}
 
 	extract(loader = []) {

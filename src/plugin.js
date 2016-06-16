@@ -10,6 +10,7 @@ let pluginId = 0;
 class SVGSpriteExtractPlugin {
 	id;
 	filename;
+	options;
 
 	constructor(filename, options) {
 		if (!filename) {

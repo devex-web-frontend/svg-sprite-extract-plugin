@@ -29,15 +29,15 @@ function createSymbol(content, id) {
 	let $ = cheerio.load(content, {xmlMode: true});
 	let $svg = $('svg');
 	let viewBox = $svg.attr('viewBox');
-	let $iconSymbol = $('<symbol></symbol>');
+	let $symbol = $('<symbol></symbol>');
 
 	let $content = getNormalizedContent($svg);
 
-	$iconSymbol.attr('id', id);
-	$iconSymbol.attr('viewBox', viewBox);
-	$iconSymbol.append($content);
+	$symbol.attr('id', id);
+	$symbol.attr('viewBox', viewBox);
+	$symbol.append($content);
 
-	return $iconSymbol;
+	return $symbol;
 }
 
 /**

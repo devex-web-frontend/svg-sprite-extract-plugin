@@ -19,27 +19,21 @@ class SVGSpriteExtractPlugin {
 
 		this.id = pluginId++;
 		this.filename = filename;
-		this.setupOptions(options);
-	}
-
-	setupOptions(opts) {
-		this.options = Object.assign({}, DEFAULT_OPTIONS, opts);
+		
+		this.options = Object.assign({}, DEFAULT_OPTIONS, options);
 		this.options.id = this.id;
 		this.options.svgCacheFuncName = this.options.svgCacheFuncPrefix + this.id;
 	}
 
-	loader() {
-		let {svgCacheNamespace, svgCacheFuncName} = this.options;
-		return require.resolve('./loader') + '?' + JSON.stringify({svgCacheNamespace, svgCacheFuncName});
-	}
-
 	extract(loader = []) {
+		let {svgCacheNamespace, svgCacheFuncName} = this.options;
+
 		if (typeof loader === 'string') {
 			loader = loader.split('!');
 		}
 
 		return [
-			this.loader()
+			require.resolve('./loader') + '?' + JSON.stringify({svgCacheNamespace, svgCacheFuncName})
 		].concat(loader).join('!');
 	}
 

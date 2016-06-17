@@ -5,7 +5,7 @@
   "main": "./index.js",
   "scripts": {
     "eslint": "eslint --config ./node_modules/eslint-config-dx/.eslintrc --ext .js ./src",
-    "bower": "bower"
+    "test": "node ./example/build.js"
   },
   "repository": {
     "type": "git",
@@ -25,11 +25,13 @@
   "devDependencies": {
     "babel-core": "^6.9.1",
     "babel-eslint": "^6.0.4",
+    "babel-loader": "^6.2.4",
     "babel-plugin-transform-class-properties": "^6.9.1",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-preset-es2015": "^6.9.0",
-    "bower": "^1.7.9",
+    "babel-register": "^6.9.0",
     "eslint": "^1.10.1",
-    "eslint-config-dx": "github:devex-web-frontend/eslint-config-dx"
+    "eslint-config-dx": "github:devex-web-frontend/eslint-config-dx",
+    "webpack": "^1.13.1"
   }
 }

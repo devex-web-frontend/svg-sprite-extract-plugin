@@ -1,0 +1,11 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 11">
+    <defs>
+        <style>
+            .mixedPositionIcon.mixedPositionIcon-buy { fill: #68a653; }
+            .mixedPositionIcon.mixedPositionIcon-sell { fill: #f23d31; }
+        </style>
+    </defs>
+    <title>icon-</title>
+    <polygon class=".mixedPositionIcon.mixedPositionIcon-buy" points="0 11 0 0 11 0 0 11"/>
+    <polygon class=".mixedPositionIcon.mixedPositionIcon-sell" points="11 0 11 11 0 11 11 0"/>
+</svg>

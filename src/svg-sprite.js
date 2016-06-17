@@ -1,13 +1,22 @@
 import {ConcatSource} from 'webpack-sources';
 import util from 'util';
 
+/**
+ * @type {string}
+ */
 const SCRIPT_HEADER = `(function() {`;
 
+/**
+ * @type {string}
+ */
 const SPRITE_CONTENT_TEMPLATE =
 	`
 	var sprite = %s;
 	`;
 
+/**
+ * @type {string}
+ */
 const SCRIPT_FOOTER =
 	`
 	var svgSprite = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -26,13 +35,31 @@ const SCRIPT_FOOTER =
 	}
 })();`;
 
+/**
+ * Representation of the result spritesheet.
+ * Stores all sprites and renders them to output javascript.
+ * @class
+ */
 class SvgSprite {
+	/**
+	 * Sprites.
+	 * @type {Array<string>}
+	 * @private
+	 */
 	_elements = [];
 
+	/**
+	 * Add a new sprite to this spritesheet.
+	 * @param {string} content Sprite's content
+	 */
 	append(content) {
 		this._elements.push(content);
 	}
 
+	/**
+	 * Render spritesheet to javascript.
+	 * @returns {ConcatSource} an object suitable for compilation.assets collection.
+	 */
 	render() {
 		let source = new ConcatSource();
 		let elements = this._elements.slice();

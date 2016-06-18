@@ -5,7 +5,17 @@ import loaderUtils from 'loader-utils';
 /**
  * @type {string[]}
  */
-const ALLOWED_TAGS = ['path', 'polygon', 'rect', 'polyline', 'circle', 'ellipse', 'line', 'defs'];
+const ALLOWED_TAGS = [
+	'path',
+	'polygon',
+	'rect',
+	'polyline',
+	'circle',
+	'ellipse',
+	'line',
+	'defs',
+	'style'
+];
 
 /**
  * Create a new Cheerio object containing only allowed content from the original SVG.

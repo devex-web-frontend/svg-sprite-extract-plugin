@@ -2,54 +2,84 @@ import path from 'path';
 import cheerio from 'cheerio';
 import loaderUtils from 'loader-utils';
 
-function getIcon($el) {
-	let shapeTypes = ['path', 'polygon', 'rect', 'polyline', 'circle', 'ellipse', 'line'];
-	let result = '';
+/**
+ * @type {string[]}
+ */
+const ALLOWED_TAGS = [
+	'path',
+	'polygon',
+	'rect',
+	'polyline',
+	'circle',
+	'ellipse',
+	'line',
+	'defs',
+	'style'
+];
 
-	shapeTypes.forEach(shape => {
-		result = result || ($el(shape).length && $el(shape));
-	});
-
-	if (!!result) {
-		result.attr('fill', null);
-	}
-
-	return result;
+/**
+ * Create a new Cheerio object containing only allowed content from the original SVG.
+ * @param {*} $svg Cheerio object for original <svg>.
+ * @returns {*} A new Cheerio object for normalized content
+ */
+function getNormalizedContent($svg) {
+	return $svg
+		.children()
+		.filter(ALLOWED_TAGS.join(', '))
+		.attr('fill', null); // we don't need predefined fill color
 }
 
-function getIconSymbol(data, id) {
-	let $el = cheerio.load(data, {xmlMode: true});
-	let icon = getIcon($el);
-	let viewBox = $el('svg').attr('viewBox');
-	let iconSymbol = $el('<symbol></symbol>');
+/**
+ * Creates <symbol> from raw <svg> content.
+ * @param {string} content Sprite content
+ * @param {string} id Sprite id
+ * @returns {*} Cheerio object for <symbol>.
+ */
+function createSymbol(content, id) {
+	let $ = cheerio.load(content, {xmlMode: true});
+	let $svg = $('svg');
+	let viewBox = $svg.attr('viewBox');
+	let $symbol = $('<symbol></symbol>');
 
-	iconSymbol.attr('id', id);
-	iconSymbol.attr('viewBox', viewBox);
-	iconSymbol.append(icon);
+	let $content = getNormalizedContent($svg);
 
-	return iconSymbol;
+	$symbol.attr('id', id);
+	$symbol.attr('viewBox', viewBox);
+	$symbol.append($content);
+
+	return $symbol;
 }
 
+/**
+ * Process raw SVG content and return ready to use html of this sprite.
+ * @param {string} content Sprite content
+ * @param {string} id Sprite id
+ * @returns {string} Sprite html
+ */
 function processSvg(content, id) {
-	return cheerio.html(getIconSymbol(content, id));
+	return cheerio.html(createSymbol(content, id));
 }
 
+/**
+ * Loader for webpack.
+ * It takes SVG file content and returns a module, exporting the id of this sprite.
+ * Also it invokes a collector function, which passes SVG content to a plugin instance.
+ * @param {string} content
+ * @returns {string}
+ */
 module.exports = function(content) {
-	if (this.cacheable) {
-		this.cacheable();
-	}
+	//noinspection JSUnresolvedVariable,JSUnresolvedFunction
+	this.cacheable && this.cacheable();
 
 	let result;
+	//noinspection JSUnresolvedVariable
 	let spriteId = path.basename(this.resourcePath, '.svg');
 	let query = loaderUtils.parseQuery(this.query);
-	let cacheSVG = this[query.svgCacheNamespace][query.svgCacheFuncName];
 
 	result = processSvg(content, spriteId);
+
+	let cacheSVG = this[query.svgCacheNamespace][query.svgCacheFuncName];
 	cacheSVG(result);
 
-	return [
-		'module.exports = ',
-		JSON.stringify(spriteId),
-		';'
-	].join('');
+	return `module.exports = ${JSON.stringify(spriteId)};`;
 };

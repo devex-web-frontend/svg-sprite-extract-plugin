@@ -1,6 +1,6 @@
 require('babel-register');
-var webpack = require('webpack');
+var Webpack = require('webpack');
 var config = require('./webpack.config').default;
 
-new webpack(config, function() {
+new Webpack(config, function() {
 });

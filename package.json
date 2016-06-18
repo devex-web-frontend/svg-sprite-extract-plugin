@@ -1,6 +1,6 @@
 {
   "name": "svg-sprite-extract-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Webpack plugin for extracting SVG and creating sprites",
   "main": "./index.js",
   "scripts": {

@@ -19,7 +19,7 @@ const webpackConfig = {
         loaders: [
             {
                 test: /\.svg$/,
-            	loader: plugin.extract()
+            	loader: svgPlugin.extract()
             }
         ]
     },

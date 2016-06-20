@@ -8,7 +8,7 @@
     "test": "del-cli example/dist && node ./example/build.js",
     "build": "del-cli dist && babel src --out-dir dist",
     "prepublish": "npm run build",
-    "precommit": "npm run prepublish && git add dist"
+    "precommit": "npm run prepublish && git add -f ./dist/*"
   },
   "repository": {
     "type": "git",

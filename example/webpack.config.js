@@ -1,5 +1,5 @@
 import path from 'path';
-import SVGSpriteExtractPlugin from '../index';
+import SVGSpriteExtractPlugin from '../src/index';
 
 const plugin = new SVGSpriteExtractPlugin('svg.bundle.js');
 

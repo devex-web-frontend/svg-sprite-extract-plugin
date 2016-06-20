@@ -2,10 +2,13 @@
   "name": "svg-sprite-extract-plugin",
   "version": "0.0.2",
   "description": "Webpack plugin for extracting SVG and creating sprites",
-  "main": "./index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "eslint": "eslint --config ./node_modules/eslint-config-dx/.eslintrc --ext .js ./src",
-    "test": "node ./example/build.js"
+    "test": "del-cli example/dist && node ./example/build.js",
+    "build": "del-cli dist && babel src --out-dir dist",
+    "prepublish": "npm run build",
+    "precommit": "npm run prepublish && git add dist"
   },
   "repository": {
     "type": "git",
@@ -23,6 +26,7 @@
     "webpack-sources": "^0.1.2"
   },
   "devDependencies": {
+    "babel-cli": "^6.10.1",
     "babel-core": "^6.9.1",
     "babel-eslint": "^6.0.4",
     "babel-loader": "^6.2.4",
@@ -30,8 +34,10 @@
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-preset-es2015": "^6.9.0",
     "babel-register": "^6.9.0",
+    "del-cli": "^0.2.0",
     "eslint": "^1.10.1",
     "eslint-config-dx": "github:devex-web-frontend/eslint-config-dx",
+    "husky": "^0.11.4",
     "webpack": "^1.13.1"
   }
 }

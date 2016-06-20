@@ -14,7 +14,8 @@ const ALLOWED_TAGS = [
 	'ellipse',
 	'line',
 	'defs',
-	'style'
+	'style',
+	'g'
 ];
 
 /**

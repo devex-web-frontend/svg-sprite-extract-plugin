@@ -17,7 +17,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /**
  * @type {string[]}
  */
-var ALLOWED_TAGS = ['path', 'polygon', 'rect', 'polyline', 'circle', 'ellipse', 'line', 'defs', 'style'];
+var ALLOWED_TAGS = ['path', 'polygon', 'rect', 'polyline', 'circle', 'ellipse', 'line', 'defs', 'style', 'g'];
 
 /**
  * Create a new Cheerio object containing only allowed content from the original SVG.

@@ -1,7 +1,10 @@
 import path from 'path';
 import SVGSpriteExtractPlugin from '../src/index';
 
-const plugin = new SVGSpriteExtractPlugin('svg.bundle.js');
+const plugin = new SVGSpriteExtractPlugin('svg.bundle.[hash].js', {
+	idTemplate: '[path][name].[hash].[ext]',
+	context: path.resolve(__dirname)
+});
 
 export default {
 	context: path.resolve(__dirname),

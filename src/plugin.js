@@ -1,10 +1,12 @@
+import loaderUtils from 'loader-utils';
 import SvgSprite from './svg-sprite';
 
 /**
  * @typedef {Object} SVGSpriteExtractPluginOptions
  * @property {string} [svgCacheNamespace]
- * @property {string} [svgCacheFuncPrefix]
  * @property {string} [svgCacheFuncName]
+ * @property {string} [idTemplate]
+ * @property {string} [context]
  */
 
 /**
@@ -12,8 +14,13 @@ import SvgSprite from './svg-sprite';
  */
 const DEFAULT_OPTIONS = {
 	svgCacheNamespace: 'cacheSvg',
-	svgCacheFuncPrefix: 'cacheSvg_'
+	idTemplate: '[name]'
 };
+
+/**
+ * @type {string}
+ */
+const SVG_CACHE_FUNC_PREFIX = 'cacheSvg_';
 
 /**
  * @type {number}
@@ -53,7 +60,7 @@ class SVGSpriteExtractPlugin {
 		this._filename = filename;
 
 		this._options = Object.assign({}, DEFAULT_OPTIONS, options);
-		this._options.svgCacheFuncName = this._options.svgCacheFuncPrefix + this._id;
+		this._options.svgCacheFuncName = SVG_CACHE_FUNC_PREFIX + this._id;
 	}
 
 	/**
@@ -62,15 +69,15 @@ class SVGSpriteExtractPlugin {
 	 * @returns {string} loader string
 	 */
 	extract(loader = []) {
-		let {svgCacheNamespace, svgCacheFuncName} = this._options;
+		let beforeLoaders = loader;
 
-		if (typeof loader === 'string') {
-			loader = loader.split('!');
+		if (typeof beforeLoaders === 'string') {
+			beforeLoaders = beforeLoaders.split('!');
 		}
 
 		return [
-			require.resolve('./loader') + '?' + JSON.stringify({svgCacheNamespace, svgCacheFuncName})
-		].concat(loader).join('!');
+			`${require.resolve('./loader')}?${JSON.stringify(this._options)}`
+		].concat(beforeLoaders).join('!');
 	}
 
 	/**
@@ -78,10 +85,10 @@ class SVGSpriteExtractPlugin {
 	 * @param {Object} compiler
 	 */
 	apply(compiler) {
-		let {svgCacheNamespace, svgCacheFuncName} = this._options;
+		const {svgCacheNamespace, svgCacheFuncName} = this._options;
 
-		let sprite = new SvgSprite();
-		let cacheFunc = svgContent => sprite.append(svgContent);
+		const sprite = new SvgSprite();
+		const cacheFunc = svgContent => sprite.append(svgContent);
 
 		compiler.plugin('compilation', compilation => {
 			compilation.plugin('normal-module-loader', (loaderContext, module) => {
@@ -91,7 +98,12 @@ class SVGSpriteExtractPlugin {
 		});
 
 		compiler.plugin('emit', (compilation, callback) => {
-			compilation.assets[this._filename] = sprite.render();
+			const compiledSprite = sprite.render();
+			const filename = loaderUtils.interpolateName({}, this._filename, {
+				content: compiledSprite.source()
+			});
+
+			compilation.assets[filename] = compiledSprite;
 			callback();
 		});
 	}

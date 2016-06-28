@@ -2,6 +2,6 @@
 
 <project version="4">
     <component name="EslintConfiguration">
-        <custom-configuration-file used="true" path="$PROJECT_DIR$/node_modules/eslint-config-dx/.eslintrc"/>
+        <custom-configuration-file used="true" path="$PROJECT_DIR$/node_modules/dx-lint/.eslintrc"/>
     </component>
-</project> 
+</project>

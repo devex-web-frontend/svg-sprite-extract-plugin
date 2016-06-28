@@ -19,7 +19,7 @@ const webpackConfig = {
         loaders: [
             {
                 test: /\.svg$/,
-            	loader: plugin.extract()
+            	loader: svgPlugin.extract()
             }
         ]
     },
@@ -41,6 +41,12 @@ and additional options object as second:
 new SVGSpriteExtractPlugin(outputFilename, options = {});
 ```
 
+`outputFilename` can contain \[hash] placeholder:
+
+```js
+new SVGSpriteExtractPlugin('my.svg.bundle.[hash].js');
+```
+
 ### .extract(loaders = [])
 
 This method returns a configured loader string for this plugin.
@@ -54,6 +60,12 @@ plugin.extract('svgo!other!etc');
 // equivalent
 plugin.extract(['svgo', 'other', 'etc']);
 ```
+
+## Options
+
+* idTemplate - default: \[name] - sprite id. You can use all built-in webpack placeholders here.
+Slashes and backslashes will be replaced with a dash. Other symbols unallowed in HTML identifiers will be removed.
+* context - default: '.' - root path from which \[path] placeholders in ids will be resolved
 
 ## Loader
 

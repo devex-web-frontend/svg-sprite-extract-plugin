@@ -1,5 +1,5 @@
 import iconClearId from './icons/icon-clear.svg';
-import iconEditId from  './icons/icon-edit.svg';
+import iconEditId from './icons/icon-edit.svg';
 import iconBoughtSold from './icons/icon-bought-sold.svg';
 
 console.assert(iconEditId === 'icon-edit', 'Invalid id for "icon-edit.svg"');

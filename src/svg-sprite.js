@@ -4,7 +4,7 @@ import util from 'util';
 /**
  * @type {string}
  */
-const SCRIPT_HEADER = `(function() {`;
+const SCRIPT_HEADER = '(function() {';
 
 /**
  * @type {string}
@@ -61,8 +61,8 @@ class SvgSprite {
 	 * @returns {ConcatSource} an object suitable for compilation.assets collection.
 	 */
 	render() {
-		let source = new ConcatSource();
-		let elements = this._elements.slice();
+		const source = new ConcatSource();
+		const elements = this._elements.slice();
 
 		source.add(SCRIPT_HEADER);
 		source.add(util.format(SPRITE_CONTENT_TEMPLATE, JSON.stringify(elements.join(''))));

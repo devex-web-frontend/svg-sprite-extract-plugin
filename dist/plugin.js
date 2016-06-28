@@ -6,6 +6,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _loaderUtils = require('loader-utils');
+
+var _loaderUtils2 = _interopRequireDefault(_loaderUtils);
+
 var _svgSprite = require('./svg-sprite');
 
 var _svgSprite2 = _interopRequireDefault(_svgSprite);
@@ -17,8 +21,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
  * @typedef {Object} SVGSpriteExtractPluginOptions
  * @property {string} [svgCacheNamespace]
- * @property {string} [svgCacheFuncPrefix]
  * @property {string} [svgCacheFuncName]
+ * @property {string} [idTemplate]
+ * @property {string} [context]
  */
 
 /**
@@ -26,8 +31,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 var DEFAULT_OPTIONS = {
 	svgCacheNamespace: 'cacheSvg',
-	svgCacheFuncPrefix: 'cacheSvg_'
+	idTemplate: '[name]'
 };
+
+/**
+ * @type {string}
+ */
+var SVG_CACHE_FUNC_PREFIX = 'cacheSvg_';
 
 /**
  * @type {number}
@@ -58,7 +68,7 @@ var SVGSpriteExtractPlugin = function () {
 		this._filename = filename;
 
 		this._options = Object.assign({}, DEFAULT_OPTIONS, options);
-		this._options.svgCacheFuncName = this._options.svgCacheFuncPrefix + this._id;
+		this._options.svgCacheFuncName = SVG_CACHE_FUNC_PREFIX + this._id;
 	}
 
 	/**
@@ -84,16 +94,14 @@ var SVGSpriteExtractPlugin = function () {
 		key: 'extract',
 		value: function extract() {
 			var loader = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-			var _options = this._options;
-			var svgCacheNamespace = _options.svgCacheNamespace;
-			var svgCacheFuncName = _options.svgCacheFuncName;
 
+			var beforeLoaders = loader;
 
-			if (typeof loader === 'string') {
-				loader = loader.split('!');
+			if (typeof beforeLoaders === 'string') {
+				beforeLoaders = beforeLoaders.split('!');
 			}
 
-			return [require.resolve('./loader') + '?' + JSON.stringify({ svgCacheNamespace: svgCacheNamespace, svgCacheFuncName: svgCacheFuncName })].concat(loader).join('!');
+			return [require.resolve('./loader') + '?' + JSON.stringify(this._options)].concat(beforeLoaders).join('!');
 		}
 
 		/**
@@ -106,9 +114,9 @@ var SVGSpriteExtractPlugin = function () {
 		value: function apply(compiler) {
 			var _this = this;
 
-			var _options2 = this._options;
-			var svgCacheNamespace = _options2.svgCacheNamespace;
-			var svgCacheFuncName = _options2.svgCacheFuncName;
+			var _options = this._options;
+			var svgCacheNamespace = _options.svgCacheNamespace;
+			var svgCacheFuncName = _options.svgCacheFuncName;
 
 
 			var sprite = new _svgSprite2.default();
@@ -124,7 +132,12 @@ var SVGSpriteExtractPlugin = function () {
 			});
 
 			compiler.plugin('emit', function (compilation, callback) {
-				compilation.assets[_this._filename] = sprite.render();
+				var compiledSprite = sprite.render();
+				var filename = _loaderUtils2.default.interpolateName({}, _this._filename, {
+					content: compiledSprite.source()
+				});
+
+				compilation.assets[filename] = compiledSprite;
 				callback();
 			});
 		}

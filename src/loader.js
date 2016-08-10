@@ -87,13 +87,13 @@ module.exports = function(content) {
 	const {context = '.'} = query;
 	const cacheSVG = this[query.svgCacheNamespace][query.svgCacheFuncName];
 
-	const spriteId = escapeId(loaderUtils.interpolateName(this, query.idTemplate, {
+	const id = escapeId(loaderUtils.interpolateName(this, query.idTemplate, {
 		content,
 		context
 	}));
 
-	const result = processSvg(content, spriteId);
-	cacheSVG(result);
+	const result = processSvg(content, id);
+	cacheSVG(id, result);
 
-	return `module.exports = ${JSON.stringify(spriteId)};`;
+	return `module.exports = ${JSON.stringify(id)};`;
 };

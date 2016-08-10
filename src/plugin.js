@@ -48,6 +48,18 @@ class SVGSpriteExtractPlugin {
 	_options;
 
 	/**
+	 * @type {SvgSprite}
+	 * @private
+	 */
+	_sprite;
+
+	/**
+	 * @type {Array<string>}
+	 * @private
+	 */
+	_errors = [];
+
+	/**
 	 * @param {string} filename
 	 * @param {SVGSpriteExtractPluginOptions} [options]
 	 */
@@ -61,6 +73,8 @@ class SVGSpriteExtractPlugin {
 
 		this._options = Object.assign({}, DEFAULT_OPTIONS, options);
 		this._options.svgCacheFuncName = SVG_CACHE_FUNC_PREFIX + this._id;
+
+		this._sprite = new SvgSprite(this._filename);
 	}
 
 	/**
@@ -87,18 +101,25 @@ class SVGSpriteExtractPlugin {
 	apply(compiler) {
 		const {svgCacheNamespace, svgCacheFuncName} = this._options;
 
-		const sprite = new SvgSprite();
-		const cacheFunc = svgContent => sprite.append(svgContent);
-
 		compiler.plugin('compilation', compilation => {
 			compilation.plugin('normal-module-loader', (loaderContext, module) => {
 				loaderContext[svgCacheNamespace] = loaderContext[svgCacheNamespace] || [];
-				loaderContext[svgCacheNamespace][svgCacheFuncName] = cacheFunc;
+				loaderContext[svgCacheNamespace][svgCacheFuncName] = (id, svgContent) => {
+					if (!this._sprite.contains(id)) {
+						this._sprite.append(id, svgContent);
+					} else {
+						this._errors.push(`Image with id '${id}' is duplicated.`);
+					}
+				};
 			});
 		});
 
 		compiler.plugin('emit', (compilation, callback) => {
-			const compiledSprite = sprite.render();
+			if (this._errors.length > 0) {
+				return callback(new Error(`Unable to build '${this._filename}':\n\t${this._errors.join('\n\t')}\n`));
+			}
+
+			const compiledSprite = this._sprite.render();
 			const filename = loaderUtils.interpolateName({}, this._filename, {
 				content: compiledSprite.source()
 			});

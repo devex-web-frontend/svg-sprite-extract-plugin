@@ -37,23 +37,52 @@ const SCRIPT_FOOTER =
 
 /**
  * Representation of the result spritesheet.
- * Stores all sprites and renders them to output javascript.
+ * Stores all images and renders them to output javascript.
  * @class
  */
 class SvgSprite {
 	/**
-	 * Sprites.
-	 * @type {Array<string>}
+	 * Name of this spritesheet.
+	 * @type {string}
 	 * @private
 	 */
-	_elements = [];
+	_name;
 
 	/**
-	 * Add a new sprite to this spritesheet.
-	 * @param {string} content Sprite's content
+	 * Images by id.
+	 * @type {Object<string, string>}
+	 * @private
 	 */
-	append(content) {
-		this._elements.push(content);
+	_images = {};
+
+	/**
+	 * @param {string} name
+	 */
+	constructor(name) {
+		this._name = name;
+	}
+
+	/**
+	 * Add a new image to this spritesheet if it is not currently stored.
+	 * @param {string} id image id
+	 * @param {string} content image content
+	 * @throws Will throw an error if the image with such id is currently in this spritesheet.
+	 */
+	append(id, content) {
+		if (this.contains(id)) {
+			throw new Error(`Duplicated image with the same id: '${id}'.`);
+		}
+
+		this._images[id] = content;
+	}
+
+	/**
+	 * Check if the image with such id is currently in the sprite.
+	 * @param {string} id image id
+	 * @returns {boolean}
+	 */
+	contains(id) {
+		return id in this._images;
 	}
 
 	/**
@@ -62,7 +91,7 @@ class SvgSprite {
 	 */
 	render() {
 		const source = new ConcatSource();
-		const elements = this._elements.slice();
+		const elements = Object.keys(this._images).map(id => this._images[id]);
 
 		source.add(SCRIPT_HEADER);
 		source.add(util.format(SPRITE_CONTENT_TEMPLATE, JSON.stringify(elements.join(''))));

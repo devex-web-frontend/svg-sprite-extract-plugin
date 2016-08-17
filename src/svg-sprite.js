@@ -11,7 +11,7 @@ const SCRIPT_HEADER = '(function() {';
  */
 const SPRITE_CONTENT_TEMPLATE =
 	`
-	var sprite = %s;
+	var sprite = "<svg xmlns=\\"http://www.w3.org/2000/svg\\">%s</svg>";
 	`;
 
 /**
@@ -19,11 +19,11 @@ const SPRITE_CONTENT_TEMPLATE =
  */
 const SCRIPT_FOOTER =
 	`
-	var svgSprite = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	var svgSprite = document.createElement('div');
 	svgSprite.id = 'svg_assets';
 	svgSprite.height = 0;
 	svgSprite.width = 0;
-	svgSprite.style = 'position: absolute; right: 100%; visibility: hidden';
+	svgSprite.setAttribute('style', 'position: absolute; right: 100%; visibility: hidden');
 	svgSprite.innerHTML = sprite;
 	
 	if (document.body) {
@@ -92,9 +92,10 @@ class SvgSprite {
 	render() {
 		const source = new ConcatSource();
 		const elements = Object.keys(this._images).map(id => this._images[id]);
+		const content = JSON.stringify(elements.join('')).slice(1, -1); // remove quotes
 
 		source.add(SCRIPT_HEADER);
-		source.add(util.format(SPRITE_CONTENT_TEMPLATE, JSON.stringify(elements.join(''))));
+		source.add(util.format(SPRITE_CONTENT_TEMPLATE, content));
 		source.add(SCRIPT_FOOTER);
 
 		return source;

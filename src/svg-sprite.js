@@ -19,7 +19,7 @@ const SPRITE_CONTENT_TEMPLATE =
  */
 const SCRIPT_FOOTER =
 	`
-	var svgSprite = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	var svgSprite = document.createElement('div');
 	svgSprite.id = 'svg_assets';
 	svgSprite.height = 0;
 	svgSprite.width = 0;

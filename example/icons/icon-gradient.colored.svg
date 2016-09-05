@@ -1,0 +1,12 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 13" fill="red">
+    <defs>
+        <linearGradient id="linear-gradient" x1="10.23" y1="13.04" x2="10.23" y2="2.92" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#7eae3d" stop-opacity="0"/>
+            <stop offset="1" stop-color="#7eae3d" stop-opacity="0.75"/>
+        </linearGradient>
+    </defs>
+    <title>icon-</title>
+    <path id="fone" d="M19.45,2.92l-8,7.88L7.5,7,1,13l18.46,0S19.4,2.92,19.45,2.92Z" fill="url(#linear-gradient)"/>
+    <polygon points="0.67 12 -0.04 11.29 7.5 3.79 11.54 7.83 19.23 0.07 19.94 0.77 11.54 9.25 7.5 5.21 0.67 12"
+             fill="#7eae3d"/>
+</svg>

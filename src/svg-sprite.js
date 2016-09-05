@@ -24,7 +24,7 @@ const SCRIPT_FOOTER =
 	svgSprite.id = 'svg_assets';
 	svgSprite.height = 0;
 	svgSprite.width = 0;
-	svgSprite.setAttribute('style', 'position: absolute; right: 100%; visibility: hidden; display: none;');
+	svgSprite.setAttribute('style', 'position: absolute; right: 100%; visibility: hidden;');
 	svgSprite.innerHTML = sprite;
 	
 	if (document.body) {

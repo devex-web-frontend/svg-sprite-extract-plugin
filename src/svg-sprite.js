@@ -107,7 +107,7 @@ class SvgSprite {
 	 */
 	render() {
 		const source = new ConcatSource();
-		const elements = Object.keys(this._images).map(id => this._images[id]);
+		const elements = Object.keys(this._images).map(id => this._images[id]).sort();
 		const content = JSON.stringify(elements.join('')).slice(1, -1); // remove quotes
 
 		source.add(SCRIPT_HEADER);
@@ -141,14 +141,17 @@ class SvgSprite {
 			throw new Error(`'${spritePath}': sprite should have a valid 'viewbox' attribute`);
 		}
 
-		if (!this._preserveColors || !this._preserveColors.test(spritePath)) {
-			$rootTag.children().find('*').attr('fill', null);
-		}
-
 		const $symbol = $('<symbol></symbol>');
 		$symbol.attr('id', id);
 		$symbol.attr('viewBox', viewBox);
 		$symbol.html($rootTag.html());
+
+		if (this._preserveColors && this._preserveColors.test(spritePath)) {
+			// save 'fill' attr on the root tag
+			$symbol.attr('fill', $rootTag.attr('fill'));
+		} else {
+			$symbol.find('*').attr('fill', null);
+		}
 
 		return cheerio.html($symbol);
 	}

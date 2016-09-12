@@ -119,7 +119,7 @@ class SVGSpriteExtractPlugin {
 	apply(compiler) {
 		compiler.plugin('compilation', compilation => {
 			compilation.plugin('normal-module-loader', (loaderContext, module) => {
-				loaderContext[this._exportedFuncName] = this.onStore;
+				loaderContext[this._exportedFuncName] = this.onStore.bind(this);
 			});
 		});
 
@@ -147,7 +147,7 @@ class SVGSpriteExtractPlugin {
 	 * @param {string} content
 	 * @param {string} spritePath
 	 */
-	onStore = (id, content, spritePath) => {
+	onStore(id, content, spritePath) {
 		try {
 			this._sprite.append(id, content, spritePath);
 		} catch (e) {

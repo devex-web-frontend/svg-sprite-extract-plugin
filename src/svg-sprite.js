@@ -137,9 +137,6 @@ class SvgSprite {
 		}
 
 		const viewBox = $rootTag.attr('viewBox');
-		if (!viewBox) {
-			throw new Error(`'${spritePath}': sprite should have a valid 'viewbox' attribute`);
-		}
 
 		const $symbol = $('<symbol></symbol>');
 		$symbol.attr('id', id);

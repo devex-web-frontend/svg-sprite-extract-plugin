@@ -1,4 +1,4 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 11">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 11" fill="#FFF">
     <defs>
         <style>
             .mixedPositionIcon.mixedPositionIcon-buy { fill: #68a653; }
@@ -7,5 +7,5 @@
     </defs>
     <title>icon-</title>
     <polygon class=".mixedPositionIcon.mixedPositionIcon-buy" points="0 11 0 0 11 0 0 11"/>
-    <polygon class=".mixedPositionIcon.mixedPositionIcon-sell" points="11 0 11 11 0 11 11 0"/>
+    <polygon class=".mixedPositionIcon.mixedPositionIcon-sell" points="11 0 11 11 0 11 11 0" fill="#FFF"/>
 </svg>

@@ -1,4 +1,5 @@
 import {ConcatSource} from 'webpack-sources';
+import cheerio from 'cheerio';
 import util from 'util';
 
 /**
@@ -11,7 +12,7 @@ const SCRIPT_HEADER = '(function() {';
  */
 const SPRITE_CONTENT_TEMPLATE =
 	`
-	var sprite = %s;
+	var sprite = "<svg xmlns=\\"http://www.w3.org/2000/svg\\">%s</svg>";
 	`;
 
 /**
@@ -19,11 +20,11 @@ const SPRITE_CONTENT_TEMPLATE =
  */
 const SCRIPT_FOOTER =
 	`
-	var svgSprite = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	var svgSprite = document.createElement('div');
 	svgSprite.id = 'svg_assets';
 	svgSprite.height = 0;
 	svgSprite.width = 0;
-	svgSprite.style = 'position: absolute; right: 100%; visibility: hidden';
+	svgSprite.setAttribute('style', 'position: absolute; right: 100%; visibility: hidden;');
 	svgSprite.innerHTML = sprite;
 	
 	if (document.body) {
@@ -36,24 +37,68 @@ const SCRIPT_FOOTER =
 })();`;
 
 /**
+ * @type {string[]}
+ */
+const ALLOWED_ROOT_TAGS = [
+	'svg',
+	'symbol'
+];
+
+/**
  * Representation of the result spritesheet.
- * Stores all sprites and renders them to output javascript.
+ * Stores all images and renders them to output javascript.
  * @class
  */
 class SvgSprite {
 	/**
-	 * Sprites.
-	 * @type {Array<string>}
+	 * Images by id.
+	 * @type {Object<string, string>}
 	 * @private
 	 */
-	_elements = [];
+	_images = {};
 
 	/**
-	 * Add a new sprite to this spritesheet.
-	 * @param {string} content Sprite's content
+	 * Regex for sprites which colors shouldn't be removed
+	 * @type {RegExp}
+	 * @private
 	 */
-	append(content) {
-		this._elements.push(content);
+	_preserveColors;
+
+	/**
+	 * Function for processing sprite content before it would be stored in the result.
+	 * @type {Function}
+	 * @private
+	 */
+	_spriteProcessor;
+
+	constructor(preserveColors = null, customSpriteProcessor = null) {
+		this._preserveColors = preserveColors;
+		this._spriteProcessor = typeof customSpriteProcessor === 'function' ?
+			customSpriteProcessor : this._processSpriteContent;
+	}
+
+	/**
+	 * Add a new image to this spritesheet if it is not currently stored.
+	 * @param {string} id image id
+	 * @param {string} content image content
+	 * @param {string} spritePath
+	 * @throws Will throw an error if the image with such id is currently in this spritesheet.
+	 */
+	append(id, content, spritePath) {
+		if (this.contains(id)) {
+			throw new Error(`'${spritePath}': duplicated id - '${id}'`);
+		}
+
+		this._images[id] = this._spriteProcessor(id, content, spritePath);
+	}
+
+	/**
+	 * Check if the image with such id is currently in the sprite.
+	 * @param {string} id image id
+	 * @returns {boolean}
+	 */
+	contains(id) {
+		return id in this._images;
 	}
 
 	/**
@@ -62,13 +107,50 @@ class SvgSprite {
 	 */
 	render() {
 		const source = new ConcatSource();
-		const elements = this._elements.slice();
+		const elements = Object.keys(this._images).map(id => this._images[id]).sort();
+		const content = JSON.stringify(elements.join('')).slice(1, -1); // remove quotes
 
 		source.add(SCRIPT_HEADER);
-		source.add(util.format(SPRITE_CONTENT_TEMPLATE, JSON.stringify(elements.join(''))));
+		source.add(util.format(SPRITE_CONTENT_TEMPLATE, content));
 		source.add(SCRIPT_FOOTER);
 
 		return source;
+	}
+
+	/**
+	 * Default sprite processor
+	 * @param {string} id image id
+	 * @param {string} content image content
+	 * @param {string} spritePath
+	 * @returns {string} sprite html
+	 */
+	_processSpriteContent(id, content, spritePath) {
+		const $ = cheerio.load(content, {
+			xmlMode: true
+		});
+
+		const $rootTag = $.root().children().first();
+		if (!$rootTag.is(ALLOWED_ROOT_TAGS.join(', '))) {
+			throw new Error(
+				`'${spritePath}': invalid root tag. Should be one of [${ALLOWED_ROOT_TAGS.join(', ')}]`
+			);
+		}
+
+		const viewBox = $rootTag.attr('viewBox');
+
+		const $symbol = $('<symbol></symbol>');
+		$symbol.attr('id', id);
+		$symbol.attr('viewBox', viewBox);
+		$symbol.html($rootTag.html());
+
+		if (this._preserveColors && this._preserveColors.test(spritePath)) {
+			// save 'fill' attr on the root tag
+			$symbol.attr('fill', $rootTag.attr('fill'));
+		} else {
+			$symbol.find('*').attr('fill', null);
+		}
+
+		return cheerio.html($symbol);
 	}
 }
 

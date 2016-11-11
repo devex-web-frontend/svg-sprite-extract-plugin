@@ -20,24 +20,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * @typedef {Object} SVGSpriteExtractPluginOptions
- * @property {string} [svgCacheNamespace]
- * @property {string} [svgCacheFuncName]
  * @property {string} [idTemplate]
  * @property {string} [context]
+ * @property {RegExp} [preserveColors]
+ * @property {Function} [spriteProcessor]
  */
 
 /**
  * @type {SVGSpriteExtractPluginOptions}
  */
 var DEFAULT_OPTIONS = {
-	svgCacheNamespace: 'cacheSvg',
 	idTemplate: '[name]'
 };
 
 /**
  * @type {string}
  */
-var SVG_CACHE_FUNC_PREFIX = 'cacheSvg_';
+var PLUGIN_NS_PREFIX = '__SVG_SPRITE_EXTRACT__';
 
 /**
  * @type {number}
@@ -47,34 +46,14 @@ var pluginId = 0;
 var SVGSpriteExtractPlugin = function () {
 
 	/**
-  * @param {string} filename
+  * @param {string} filenameTemplate
   * @param {SVGSpriteExtractPluginOptions} [options]
   */
 
 
 	/**
-  * @type {string}
+  * @type {Array<Error>}
   * @private
-  */
-
-	function SVGSpriteExtractPlugin(filename, options) {
-		_classCallCheck(this, SVGSpriteExtractPlugin);
-
-		if (!filename) {
-			throw new Error('You should provide a filename for SVG sprite');
-		}
-
-		this._id = pluginId++;
-		this._filename = filename;
-
-		this._options = Object.assign({}, DEFAULT_OPTIONS, options);
-		this._options.svgCacheFuncName = SVG_CACHE_FUNC_PREFIX + this._id;
-	}
-
-	/**
-  * Resolve loader string for this plugin instance.
-  * @param {string|Array<string>} [loader=[]]
-  * @returns {string} loader string
   */
 
 
@@ -86,6 +65,53 @@ var SVGSpriteExtractPlugin = function () {
 
 	/**
   * @type {number}
+  * @private
+  */
+	function SVGSpriteExtractPlugin(filenameTemplate) {
+		var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+		_classCallCheck(this, SVGSpriteExtractPlugin);
+
+		this._errors = [];
+
+		if (!filenameTemplate) {
+			throw new Error('SVG-EXTRACT-PLUGIN: You should provide a filename for SVG sprite');
+		} else if (options.preserveColors && !options.preserveColors.test) {
+			throw new Error('SVG-EXTRACT-PLUGIN: \'preserveColors\' option should be a valid RegExp');
+		} else if (options.spriteProcessor && typeof options.spriteProcessor !== 'function') {
+			throw new Error('SVG-EXTRACT-PLUGIN: \'spriteProcessor\' option should be a function');
+		}
+
+		this._id = pluginId++;
+		this._filenameTemplate = filenameTemplate;
+
+		this._options = Object.assign({}, DEFAULT_OPTIONS, options);
+		this._exportedFuncName = PLUGIN_NS_PREFIX + this._id;
+
+		this._sprite = new _svgSprite2.default(this._options.preserveColors, this._options.spriteProcessor);
+	}
+
+	/**
+  * Resolve loader string for this plugin instance.
+  * @param {string|Array<string>} [loader=[]]
+  * @returns {string} loader string
+  */
+
+
+	/**
+  * @type {string}
+  * @private
+  */
+
+
+	/**
+  * @type {SvgSprite}
+  * @private
+  */
+
+
+	/**
+  * @type {string}
   * @private
   */
 
@@ -101,7 +127,13 @@ var SVGSpriteExtractPlugin = function () {
 				beforeLoaders = beforeLoaders.split('!');
 			}
 
-			return [require.resolve('./loader') + '?' + JSON.stringify(this._options)].concat(beforeLoaders).join('!');
+			var query = {
+				idTemplate: this._options.idTemplate,
+				context: this._options.context,
+				storeSvgFuncName: this._exportedFuncName
+			};
+
+			return [require.resolve('./loader') + '?' + JSON.stringify(query)].concat(beforeLoaders).join('!');
 		}
 
 		/**
@@ -114,32 +146,44 @@ var SVGSpriteExtractPlugin = function () {
 		value: function apply(compiler) {
 			var _this = this;
 
-			var _options = this._options;
-			var svgCacheNamespace = _options.svgCacheNamespace;
-			var svgCacheFuncName = _options.svgCacheFuncName;
-
-
-			var sprite = new _svgSprite2.default();
-			var cacheFunc = function cacheFunc(svgContent) {
-				return sprite.append(svgContent);
-			};
-
 			compiler.plugin('compilation', function (compilation) {
 				compilation.plugin('normal-module-loader', function (loaderContext, module) {
-					loaderContext[svgCacheNamespace] = loaderContext[svgCacheNamespace] || [];
-					loaderContext[svgCacheNamespace][svgCacheFuncName] = cacheFunc;
+					loaderContext[_this._exportedFuncName] = _this.onStore.bind(_this);
 				});
 			});
 
 			compiler.plugin('emit', function (compilation, callback) {
-				var compiledSprite = sprite.render();
-				var filename = _loaderUtils2.default.interpolateName({}, _this._filename, {
+				if (_this._errors.length > 0) {
+					return callback('SVG-EXTRACT-PLUGIN: Unable to build \'' + _this._filenameTemplate + '\':\n' + ('\t' + _this._errors.map(function (e) {
+						return e.message;
+					}).join('\n\t') + '\n'));
+				}
+
+				var compiledSprite = _this._sprite.render();
+				var filename = _loaderUtils2.default.interpolateName({}, _this._filenameTemplate, {
 					content: compiledSprite.source()
 				});
 
 				compilation.assets[filename] = compiledSprite;
 				callback();
 			});
+		}
+
+		/**
+   * Handler for SVG images passed from loader context
+   * @param {string} id
+   * @param {string} content
+   * @param {string} spritePath
+   */
+
+	}, {
+		key: 'onStore',
+		value: function onStore(id, content, spritePath) {
+			try {
+				this._sprite.append(id, content, spritePath);
+			} catch (e) {
+				this._errors.push(e);
+			}
 		}
 	}]);
 

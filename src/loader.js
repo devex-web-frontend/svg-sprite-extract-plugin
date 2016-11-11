@@ -1,67 +1,4 @@
-import cheerio from 'cheerio';
 import loaderUtils from 'loader-utils';
-
-/**
- * @type {string[]}
- */
-const ALLOWED_TAGS = [
-	'path',
-	'polygon',
-	'rect',
-	'polyline',
-	'circle',
-	'ellipse',
-	'line',
-	'defs',
-	'style',
-	'g'
-];
-
-/**
- * Create a new Cheerio object containing only allowed content from the original SVG.
- * @param {*} $svg Cheerio object for original <svg>.
- * @returns {*} A new Cheerio object for normalized content
- */
-function getNormalizedContent($svg) {
-	return $svg
-		.children()
-		.filter(ALLOWED_TAGS.join(', '))
-		.attr('fill', null); // we don't need predefined fill color
-}
-
-/**
- * Creates <symbol> from raw <svg> content.
- * @param {string} content Sprite content
- * @param {string} id Sprite id
- * @returns {*} Cheerio object for <symbol>.
- */
-function createSymbol(content, id) {
-	const $ = cheerio.load(content, {
-		xmlMode: true
-	});
-
-	const $svg = $('svg');
-	const viewBox = $svg.attr('viewBox');
-	const $symbol = $('<symbol></symbol>');
-
-	const $content = getNormalizedContent($svg);
-
-	$symbol.attr('id', id);
-	$symbol.attr('viewBox', viewBox);
-	$symbol.append($content);
-
-	return $symbol;
-}
-
-/**
- * Process raw SVG content and return ready to use html of this sprite.
- * @param {string} content Sprite content
- * @param {string} id Sprite id
- * @returns {string} Sprite html
- */
-function processSvg(content, id) {
-	return cheerio.html(createSymbol(content, id));
-}
 
 /**
  * @param {String} id
@@ -79,21 +16,17 @@ function escapeId(id) {
  * @returns {string}
  */
 module.exports = function(content) {
-	//noinspection JSUnresolvedVariable,JSUnresolvedFunction
 	this.cacheable && this.cacheable();
-
-	//noinspection JSUnresolvedVariable
 	const query = loaderUtils.parseQuery(this.query);
-	const {context = '.'} = query;
-	const cacheSVG = this[query.svgCacheNamespace][query.svgCacheFuncName];
+	const {storeSvgFuncName, idTemplate, context = '.'} = query;
+	const storeSvg = this[storeSvgFuncName];
 
-	const spriteId = escapeId(loaderUtils.interpolateName(this, query.idTemplate, {
+	const id = escapeId(loaderUtils.interpolateName(this, idTemplate, {
 		content,
 		context
 	}));
 
-	const result = processSvg(content, spriteId);
-	cacheSVG(result);
+	storeSvg(id, content, this.resourcePath);
 
-	return `module.exports = ${JSON.stringify(spriteId)};`;
+	return `module.exports = ${JSON.stringify(id)};`;
 };

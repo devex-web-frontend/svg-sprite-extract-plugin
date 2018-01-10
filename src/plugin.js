@@ -101,15 +101,18 @@ class SVGSpriteExtractPlugin {
 			beforeLoaders = beforeLoaders.split('!');
 		}
 
-		const query = {
+		const options = {
 			idTemplate: this._options.idTemplate,
 			context: this._options.context,
 			storeSvgFuncName: this._exportedFuncName
 		};
 
 		return [
-			`${require.resolve('./loader')}?${JSON.stringify(query)}`
-		].concat(beforeLoaders).join('!');
+			{
+				loader: require.resolve('./loader'),
+				options
+			}
+		].concat(beforeLoaders);
 	}
 
 	/**

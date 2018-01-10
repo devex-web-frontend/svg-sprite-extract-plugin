@@ -1,10 +1,9 @@
 import path from 'path';
 import SVGSpriteExtractPlugin from '../index';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import WebpackBrowserPlugin from 'webpack-browser-plugin';
 
 const plugin = new SVGSpriteExtractPlugin('svg.bundle.js', {
-	idTemplate: '[path][name].[hash].[ext]',
+	idTemplate: '[path][name]',
 	context: path.resolve(__dirname),
 	preserveColors: /\.colored\./
 });
@@ -20,11 +19,11 @@ export default {
 	},
 
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /\.jsx?$/,
 				exclude: /node_modules/,
-				loader: 'babel'
+				loader: 'babel-loader'
 			},
 			{
 				test: /\.svg$/,
@@ -37,7 +36,6 @@ export default {
 		plugin,
 		new HtmlWebpackPlugin({
 			template: './index.html'
-		}),
-		new WebpackBrowserPlugin()
+		})
 	]
 };

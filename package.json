@@ -5,7 +5,7 @@
   "main": "./index.js",
   "scripts": {
     "eslint": "eslint --config ./node_modules/dx-lint/.eslintrc --ext .js ./src",
-    "build:example": "node ./example/build.js"
+    "start": "node ./scripts/run.js ./scripts/start.js --config=example/webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,8 @@
   "homepage": "https://github.com/devex-web-frontend/svg-sprite-extract-plugin#readme",
   "dependencies": {
     "cheerio": "^0.20.0",
-    "loader-utils": "^0.2.15",
-    "webpack-sources": "^0.1.2"
+    "loader-utils": "^1.1.0",
+    "webpack-sources": "^1.1.0"
   },
   "devDependencies": {
     "babel-core": "^6.9.1",
@@ -34,7 +34,7 @@
     "eslint": "~2.13.1",
     "eslint-plugin-babel": "~3.3.0",
     "html-webpack-plugin": "^2.22.0",
-    "webpack": "^1.13.1",
-    "webpack-browser-plugin": "^1.0.12"
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.10.1"
   }
 }

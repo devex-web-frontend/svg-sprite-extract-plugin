@@ -1,4 +1,4 @@
-import loaderUtils from 'loader-utils';
+import {getOptions, interpolateName} from 'loader-utils';
 
 /**
  * @param {String} id
@@ -17,11 +17,11 @@ function escapeId(id) {
  */
 module.exports = function(content) {
 	this.cacheable && this.cacheable();
-	const query = loaderUtils.parseQuery(this.query);
-	const {storeSvgFuncName, idTemplate, context = '.'} = query;
+	const options = getOptions(this);
+	const {storeSvgFuncName, idTemplate, context = '.'} = options;
 	const storeSvg = this[storeSvgFuncName];
 
-	const id = escapeId(loaderUtils.interpolateName(this, idTemplate, {
+	const id = escapeId(interpolateName(this, idTemplate, {
 		content,
 		context
 	}));
